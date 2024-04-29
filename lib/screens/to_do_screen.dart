@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
 import 'package:google_fonts/google_fonts.dart';
 import 'package:todo/widgets/components/add_task.dart';
-import "package:todo/widgets/components/task_description.dart";
-
-final formatter = DateFormat.yMMMMd();
+import "package:todo/model/task.dart";
+import 'package:todo/widgets/task_list.dart';
 
 class ToDo extends StatefulWidget {
   const ToDo({super.key});
@@ -17,8 +14,19 @@ class ToDo extends StatefulWidget {
 }
 
 class _ToDoState extends State<ToDo> {
+  final List<Task> _registerTasks = [];
+
   void _openAddTaskOverLay() {
-    showModalBottomSheet(context: context, builder: (ctx) => const AddTask());
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (ctx) => AddTask(onAddTask: _addTask));
+  }
+
+  void _addTask(Task task) {
+    setState(() {
+      _registerTasks.add(task);
+    });
   }
 
   @override
@@ -54,7 +62,7 @@ class _ToDoState extends State<ToDo> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,8 +77,7 @@ class _ToDoState extends State<ToDo> {
             const SizedBox(
               height: 20,
             ),
-            const TaskDescription(),
-            const TaskDescription(),
+            TaskList(tasks: _registerTasks)
           ],
         ),
       ),

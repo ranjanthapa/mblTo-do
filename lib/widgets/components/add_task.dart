@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:todo/widgets/to_do_screen.dart';
+import "package:todo/model/task.dart";
 
 class AddTask extends StatefulWidget {
-  const AddTask({super.key});
+  const AddTask({super.key, required this.onAddTask});
+  final Function(Task task) onAddTask;
+
   @override
   State<AddTask> createState() {
     return _AddTaskState();
@@ -12,18 +13,59 @@ class AddTask extends StatefulWidget {
 }
 
 class _AddTaskState extends State<AddTask> {
-  final TextEditingController _taskController = TextEditingController();
+  final _taskTitleController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final _todayDate = DateTime.now();
-  String dateFormat = DateFormat.MONTH_DAY;
 
-  String? _selectedDate;
+  DateTime? _selectedDate;
+  var _selectedDateType = 'today';
 
   @override
   void dispose() {
-    _taskController.dispose();
+    _taskTitleController.dispose();
     _noteController.dispose();
     super.dispose();
+  }
+
+  void _datePicker() async {
+    final now = DateTime.now();
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: now,
+      lastDate: DateTime(2100),
+    );
+    setState(() {
+      _selectedDate = pickedDate;
+    });
+  }
+
+  void _onSubmit() {
+    if (_taskTitleController.text.trim().isEmpty || _selectedDate == null) {
+      showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                content: const Text(
+                    "Make sure the task has title and date selected"),
+                title: const Text("Invalid Input"),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                      },
+                      child: const Text("Okay"))
+                ],
+              ));
+      return;
+    }
+
+    widget.onAddTask(Task(
+      date: _selectedDate!,
+      note: _noteController.text,
+      task: _taskTitleController.text,
+    ));
+
+    Navigator.pop(context);
   }
 
   @override
@@ -52,7 +94,7 @@ class _AddTaskState extends State<AddTask> {
             height: 20,
           ),
           TextField(
-            controller: _taskController,
+            controller: _taskTitleController,
             maxLength: 50,
             decoration: const InputDecoration(
                 border: OutlineInputBorder(), labelText: "Task"),
@@ -103,26 +145,48 @@ class _AddTaskState extends State<AddTask> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               OutlinedButton.icon(
-                  onPressed: () {
-                    setState(
-                      () => _selectedDate = formatter.format(_todayDate),
-                    );
-                  },
-                  style: ButtonStyle(backgroundColor: BackgroundColor(context)),
-                  icon: const Icon(Icons.calendar_today),
-                  label: const Text("Today")),
+                onPressed: () {
+                  setState(() {
+                    _selectedDate = _todayDate;
+                    _selectedDateType = 'today';
+                  });
+                },
+                style: OutlinedButton.styleFrom(
+                    backgroundColor: _selectedDateType == 'today'
+                        ? Colors.blue.shade400
+                        : const Color.fromARGB(255, 247, 240, 240)),
+                icon: const Icon(Icons.calendar_today),
+                label: const Text("Today"),
+              ),
               OutlinedButton.icon(
-                  onPressed: () {
-                    print("button pressed");
-                  },
-                  icon: const Icon(Icons.calendar_month_outlined),
-                  label: const Text("Tommorrow")),
+                onPressed: () {
+                  setState(() {
+                    _selectedDate = _todayDate.add(const Duration(days: 1));
+                    _selectedDateType = 'tomorrow';
+                  });
+                },
+                icon: const Icon(Icons.calendar_month_outlined),
+                label: const Text("Tommorrow"),
+                style: OutlinedButton.styleFrom(
+                    backgroundColor: _selectedDateType == 'tomorrow'
+                        ? Colors.blue.shade400
+                        : const Color.fromARGB(255, 247, 240, 240)),
+              ),
               OutlinedButton.icon(
-                  onPressed: () {
-                    print("button pressed");
-                  },
-                  icon: const Icon(Icons.calendar_month_sharp),
-                  label: const Text("Date")),
+                onPressed: () {
+                  _datePicker();
+                  print(_selectedDate);
+                  setState(() {
+                    _selectedDateType = 'other';
+                  });
+                },
+                icon: const Icon(Icons.calendar_month_sharp),
+                label: const Text("Date"),
+                style: OutlinedButton.styleFrom(
+                    backgroundColor: _selectedDateType == 'other'
+                        ? Colors.blue.shade400
+                        : const Color.fromARGB(255, 247, 240, 240)),
+              ),
             ],
           ),
           const SizedBox(
@@ -131,9 +195,7 @@ class _AddTaskState extends State<AddTask> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
-                print("button pressed");
-              },
+              onPressed: _onSubmit,
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue.shade300,
                   shape: RoundedRectangleBorder(
@@ -148,19 +210,5 @@ class _AddTaskState extends State<AddTask> {
         ],
       ),
     );
-  }
-}
-
-class BackgroundColor implements MaterialStateProperty<Color> {
-  BackgroundColor(this.context);
-  final BuildContext context;
-
-  @override
-  Color resolve(Set<MaterialState> states) {
-    if (states.contains(MaterialState.selected)) {
-      return Colors.blue.shade400;
-    } else {
-      return Colors.white;
-    }
   }
 }

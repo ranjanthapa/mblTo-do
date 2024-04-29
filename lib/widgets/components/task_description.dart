@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import "package:todo/model/task.dart";
 
 class TaskDescription extends StatefulWidget {
-  const TaskDescription({super.key});
+  const TaskDescription({super.key, required this.task});
+
+  final Task task;
 
   @override
   State<TaskDescription> createState() {
@@ -10,8 +13,6 @@ class TaskDescription extends StatefulWidget {
 }
 
 class _TaskDescriptionState extends State<TaskDescription> {
-  bool taskStatus = false;
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -23,37 +24,38 @@ class _TaskDescriptionState extends State<TaskDescription> {
           ),
         ),
         Expanded(
-          child: Card(
-            child: Container(
-              // width: double.infinity,
-              padding: const EdgeInsets.all(15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Checkbox(
-                        value: taskStatus,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            taskStatus = value ?? false;
-                          });
-                        },
-                      ),
-                      const Text(
-                        "Complete the task",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      const Spacer(),
-                      const Text("Apr 12"),
-                    ],
-                  ),
-                  const Text("Description"),
-                ],
-              ),
+          // child: Card(
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Checkbox(
+                      value: widget.task.status,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          widget.task.status = value ?? false;
+                        });
+                      },
+                    ),
+                    Text(
+                      widget.task.task,
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    const Spacer(),
+                    Text(widget.task.getFormattedDate()),
+                  ],
+                ),
+                Text(
+                  widget.task.note,
+                ),
+              ],
             ),
           ),
+          // ),
         ),
       ],
     );
