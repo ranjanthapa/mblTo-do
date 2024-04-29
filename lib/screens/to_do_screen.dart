@@ -18,7 +18,7 @@ class _ToDoState extends State<ToDo> {
 
   void _openAddTaskOverLay() {
     showModalBottomSheet(
-        isScrollControlled: true,
+        // isScrollControlled: true,
         context: context,
         builder: (ctx) => AddTask(onAddTask: _addTask));
   }
@@ -77,7 +77,7 @@ class _ToDoState extends State<ToDo> {
             const SizedBox(
               height: 20,
             ),
-            TaskList(tasks: _registerTasks)
+            Expanded(child: TaskList(tasks: _registerTasks))
           ],
         ),
       ),
