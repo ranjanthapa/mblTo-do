@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:todo/model/task.dart';
-import 'package:todo/widgets/components/task_description.dart';
+import 'package:todo/widgets/task_description.dart';
 
 class TaskList extends StatelessWidget {
-  const TaskList({super.key, required this.tasks});
+  const TaskList(
+      {super.key,
+      required this.tasks,
+      required this.onCompleteTask,
+      required this.onRemoveTask});
   final List<Task> tasks;
+  final Function(Task task) onCompleteTask;
+
+  final Function(Task task) onRemoveTask;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +22,16 @@ class TaskList extends StatelessWidget {
     return tasks.isNotEmpty
         ? ListView.builder(
             itemCount: tasks.length,
-            itemBuilder: (ctx, index) => TaskDescription(task: tasks[index]))
+            itemBuilder: (ctx, index) => Dismissible(
+                  key: ValueKey(tasks[index]),
+                  onDismissed: (direction) {
+                    onRemoveTask(tasks[index]);
+                  },
+                  child: TaskDescription(
+                    task: tasks[index],
+                    onCompleteTask: onCompleteTask,
+                  ),
+                ))
         : emptyContent;
   }
 }

@@ -18,7 +18,7 @@ class _AddTaskState extends State<AddTask> {
   final _todayDate = DateTime.now();
 
   DateTime? _selectedDate;
-  var _selectedDateType = 'today';
+  String? _selectedDateType;
 
   @override
   void dispose() {

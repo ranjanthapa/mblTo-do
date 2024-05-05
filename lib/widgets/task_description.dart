@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 import "package:todo/model/task.dart";
 
 class TaskDescription extends StatefulWidget {
-  const TaskDescription({super.key, required this.task});
+  const TaskDescription(
+      {super.key, required this.task, required this.onCompleteTask});
 
   final Task task;
+  final Function(Task task)? onCompleteTask;
 
   @override
   State<TaskDescription> createState() {
@@ -34,12 +36,14 @@ class _TaskDescriptionState extends State<TaskDescription> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Checkbox(
-                      value: widget.task.status,
-                      onChanged: (bool? value) {
+                      onChanged: (value) {
+                        widget.onCompleteTask!(widget.task);
                         setState(() {
-                          widget.task.status = value ?? false;
+                          widget.task.status = !widget.task.status;
                         });
+                        print(widget.task.status);
                       },
+                      value: widget.task.status,
                     ),
                     Text(
                       widget.task.task,
